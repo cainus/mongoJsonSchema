@@ -1,9 +1,9 @@
-#mongoJsonSchema
+#mongo-json-schema
 
 This is a library for validating objects against a jsonSchema before inserting into (and after retrieving from) mongo.
 ### creating a schema object
 ```javascript  
-var Schema = require('mongoJsonSchema');
+var Schema = require('mongo-json-schema');
 var schema = Schema({
     type : 'object',
     properties : {
