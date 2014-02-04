@@ -1,0 +1,38 @@
+{
+  "name": "mongoJsonSchema",
+  "version": "0.0.1",
+  "description": "A schema validator for objects going into mongo",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/cainus/mongoJsonSchema.git"
+  },
+  "keywords": [
+    "mongo",
+    "schema",
+    "jsonschema"
+  ],
+  "author": "Gregg Caines",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cainus/mongoJsonSchema/issues"
+  },
+  "homepage": "https://github.com/cainus/mongoJsonSchema",
+  "dependencies": {
+    "traverse": "0.6.6",
+    "JSV": "4.0.2",
+    "mongodb": "1.3.23",
+    "underscore": "1.5.2"
+  },
+  "devDependencies": {
+    "deep-equal": "0.2.1",
+    "mocha": "1.17.1",
+    "should": "3.1.2",
+    "istanbul": "0.2.4",
+    "coveralls": "2.7.1",
+    "jshint": "2.4.3"
+  }
+}
