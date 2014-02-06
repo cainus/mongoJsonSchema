@@ -10,7 +10,9 @@ var Schema = function(jsonSchema){
   }
   this.schema = jsonSchema;
   this._jsonSchema = toJsonSchema(jsonSchema);
+  this._partialJsonSchema = toPartialJsonSchema(this._jsonSchema);
   this.jsonValidator = JSV.createEnvironment().createSchema(this._jsonSchema);
+  this.partialJsonValidator = JSV.createEnvironment().createSchema(this._partialJsonSchema);
 };
 
 var toJsonSchema = function(schema){
@@ -24,6 +26,16 @@ var toJsonSchema = function(schema){
   return standard;
 };
 
+var toPartialJsonSchema = function(schema) {
+  var partial = traverse(schema).map(function(value) {
+    if (value.required) {
+      delete value.required;
+    }
+    return value;
+  });
+  return partial;
+};
+
 Schema.prototype.toJsonSchema = function(){
   return this._jsonSchema;
 };
@@ -32,7 +44,7 @@ Schema.prototype.forJson = function(obj){
   var paths = this.getObjectIdPaths();
   var that = this;
   paths.forEach(function(path){
-    obj = that.pathApply(obj, path, function(item){ 
+    obj = that.pathApply(obj, path, function(item){
       return item.toString();
     });
   });
@@ -86,11 +98,23 @@ Schema.prototype.validate = function(obj){
   return this;
 };
 
+Schema.prototype.partialValidate = function(obj){
+  obj = this.forJson(obj);
+  var report = this.partialJsonValidator.validate(obj);
+  if (report.errors.length > 0){
+    var err = new Error("JsonSchema validation error");
+    err.errors = report.errors;
+    err.name = "JsonSchemaValidationError";
+    throw err;
+  }
+  return this;
+};
+
 Schema.prototype.forMongo = function(obj){
   var paths = this.getObjectIdPaths();
   var that = this;
   paths.forEach(function(path){
-    obj = that.pathApply(obj, path, function(item){ 
+    obj = that.pathApply(obj, path, function(item){
       if (item instanceof ObjectID){
         return item;
       }
