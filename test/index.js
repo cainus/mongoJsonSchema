@@ -194,7 +194,7 @@ describe('mongoJsonSchema', function(){
     });
   });
   describe("validate", function(){
-    it ("validates against the schema", function(done){
+    it ("rejects bad data against the schema", function(done){
       try {
         var actual = schema.validate({
           _id : '52f044dee2896a8264d7ec2',  // bad id here
@@ -210,7 +210,65 @@ describe('mongoJsonSchema', function(){
       }
       throw "shouldn't get here";
     });
-  
+    it ("rejects data with missing required fields", function(done){
+      try {
+        var actual = schema.validate({
+          nested : {
+            sub : '52f044dee2896a8264d7ec2f',
+          },
+          count : 42,
+          participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f']
+        });
+      } catch (ex){
+        ex.errors[0].message.should.equal('Property is required');
+        return done();
+      }
+      throw "shouldn't get here";
+    });
+    it ("accepts good data against the schema", function(done) {
+      schema.validate({
+        _id : '52f044dee2896a8264d7ec2f',
+        nested : {
+          sub : '52f044dee2896a8264d7ec2f',
+        },
+        count : 42,
+        participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f']
+      });
+      // partial data missing non-required fields.
+      schema.validate({
+        _id : '52f044dee2896a8264d7ec2f',
+        participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f']
+      });
+      done();
+    });
+  });
+
+  describe("partialValidate", function() {
+    it ("rejects bad data against the schema", function(done){
+      try {
+        var actual = schema.partialValidate({
+          _id : '52f044dee2896a8264d7ec2',  // bad id here
+        });
+      } catch (ex){
+        ex.errors[0].message.should.equal('String does not match pattern');
+        return done();
+      }
+      throw "shouldn't get here";
+    });
+    it ("does not reject data with missing required fields", function(done){
+      var actual = schema.partialValidate({
+        nested : {
+          sub : '52f044dee2896a8264d7ec2f',
+        },
+        count : 42,
+        participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f']
+      });
+      done();
+    });
+    it ("does not reject entirely empty data", function(done) {
+      var actual = schema.partialValidate({});
+      done();
+    });
   });
   describe("forMongo", function(){
     it ("returns objectid strings as ids", function(done){
