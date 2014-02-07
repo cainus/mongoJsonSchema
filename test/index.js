@@ -172,27 +172,6 @@ describe('mongoJsonSchema', function(){
       ]);
     });
   });
-  describe("forJson", function(){
-    it ("validates and returns ids as strings", function(done){
-      var actual = schema.forJson({
-        _id : ObjectID('52f044dee2896a8264d7ec2f'),
-        nested : {
-          sub : ObjectID('52f044dee2896a8264d7ec2f'),
-        },
-        count : 42,
-        participants : [ObjectID('52f044dee2896a8264d7ec2f'),ObjectID('52f044dee2896a8264d7ec2f')]
-      });
-      assertObjectEquals(actual, {
-        _id : '52f044dee2896a8264d7ec2f',
-        nested : {
-          sub : '52f044dee2896a8264d7ec2f',
-        },
-        count : 42,
-        participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f']
-      });
-      done();
-    });
-  });
   describe("validate", function(){
     it ("rejects bad data against the schema", function(done){
       try {
@@ -270,9 +249,32 @@ describe('mongoJsonSchema', function(){
       done();
     });
   });
-  describe("forMongo", function(){
+
+  describe("idsToStrings", function(){
+    it ("validates and returns ids as strings", function(done){
+      var actual = schema.idsToStrings({
+        _id : ObjectID('52f044dee2896a8264d7ec2f'),
+        nested : {
+          sub : ObjectID('52f044dee2896a8264d7ec2f'),
+        },
+        count : 42,
+        participants : [ObjectID('52f044dee2896a8264d7ec2f'),ObjectID('52f044dee2896a8264d7ec2f')]
+      });
+      assertObjectEquals(actual, {
+        _id : '52f044dee2896a8264d7ec2f',
+        nested : {
+          sub : '52f044dee2896a8264d7ec2f',
+        },
+        count : 42,
+        participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f']
+      });
+      done();
+    });
+  });
+
+  describe("stringsToIds", function(){
     it ("returns objectid strings as ids", function(done){
-      var actual = schema.forMongo({
+      var actual = schema.stringsToIds({
         _id : '52f044dee2896a8264d7ec2f',
         nested : {
           sub : '52f044dee2896a8264d7ec2f',
@@ -291,7 +293,7 @@ describe('mongoJsonSchema', function(){
       done();
     });
     it ("returns objectid strings or objectids as objectids", function(done){
-      var actual = schema.forMongo({
+      var actual = schema.stringsToIds({
         _id : '52f044dee2896a8264d7ec2f',
         nested : {
           sub : ObjectID('52f044dee2896a8264d7ec2f'),
@@ -310,9 +312,9 @@ describe('mongoJsonSchema', function(){
       done();
     });
   });
-  describe("toJsonSchema", function(){
+  describe("getJsonSchema", function(){
     it ("converts objectid to string with regex", function(done){
-      var actual = schema.toJsonSchema();
+      var actual = schema.getJsonSchema();
       assertObjectEquals(actual, {
         type : 'object',
         properties : {

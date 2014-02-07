@@ -8,7 +8,7 @@ var Schema = function(jsonSchema){
   if (!(this instanceof Schema)) {
     return new Schema(jsonSchema);
   }
-  this.schema = jsonSchema;
+  this._schema = jsonSchema;
   this._jsonSchema = toJsonSchema(jsonSchema);
   this._partialJsonSchema = toPartialJsonSchema(this._jsonSchema);
   this.jsonValidator = JSV.createEnvironment().createSchema(this._jsonSchema);
@@ -36,16 +36,32 @@ var toPartialJsonSchema = function(schema) {
   return partial;
 };
 
-Schema.prototype.toJsonSchema = function(){
+Schema.prototype.getJsonSchema = function(){
   return this._jsonSchema;
 };
 
-Schema.prototype.forJson = function(obj){
+Schema.prototype.idsToStrings = function(obj){
   var paths = this.getObjectIdPaths();
   var that = this;
   paths.forEach(function(path){
     obj = that.pathApply(obj, path, function(item){
       return item.toString();
+    });
+  });
+  return obj;
+};
+
+Schema.prototype.stringsToIds = function(obj){
+  var paths = this.getObjectIdPaths();
+  var that = this;
+  paths.forEach(function(path){
+    obj = that.pathApply(obj, path, function(item){
+      if (item instanceof ObjectID){
+        return item;
+      }
+      if (_.isString(item)){
+      return ObjectID(item);
+      }
     });
   });
   return obj;
@@ -87,7 +103,7 @@ Schema.prototype.pathApply = function(obj, path, fn){
 
 
 Schema.prototype.validate = function(obj){
-  obj = this.forJson(obj);
+  obj = this.idsToStrings(obj);
   var report = this.jsonValidator.validate(obj);
   if (report.errors.length > 0){
     var err = new Error("JsonSchema validation error");
@@ -99,7 +115,7 @@ Schema.prototype.validate = function(obj){
 };
 
 Schema.prototype.partialValidate = function(obj){
-  obj = this.forJson(obj);
+  obj = this.idsToStrings(obj);
   var report = this.partialJsonValidator.validate(obj);
   if (report.errors.length > 0){
     var err = new Error("JsonSchema validation error");
@@ -110,28 +126,12 @@ Schema.prototype.partialValidate = function(obj){
   return this;
 };
 
-Schema.prototype.forMongo = function(obj){
-  var paths = this.getObjectIdPaths();
-  var that = this;
-  paths.forEach(function(path){
-    obj = that.pathApply(obj, path, function(item){
-      if (item instanceof ObjectID){
-        return item;
-      }
-      if (_.isString(item)){
-      return ObjectID(item);
-      }
-    });
-  });
-  return obj;
-};
-
 Schema.prototype.getObjectIdPaths = function(prefix, schema){
   if (!prefix){
     prefix = [];
   }
   if (!schema){
-    schema = this.schema;
+    schema = this._schema;
   }
   var that = this;
   switch(schema.type){
