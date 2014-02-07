@@ -47,7 +47,8 @@ describe('mongoJsonSchema', function(){
           type: "objectid",
         }
       }
-    }
+    },
+    additionalProperties: false
   });
   describe("getObjectIdPaths", function(){
     it("retuns no paths for a number", function(){
@@ -175,7 +176,7 @@ describe('mongoJsonSchema', function(){
   describe("validate", function(){
     it ("rejects bad data against the schema", function(done){
       try {
-        var actual = schema.validate({
+        schema.validate({
           _id : '52f044dee2896a8264d7ec2',  // bad id here
           nested : {
             sub : '52f044dee2896a8264d7ec2f',
@@ -191,7 +192,7 @@ describe('mongoJsonSchema', function(){
     });
     it ("rejects data with missing required fields", function(done){
       try {
-        var actual = schema.validate({
+        schema.validate({
           nested : {
             sub : '52f044dee2896a8264d7ec2f',
           },
@@ -200,6 +201,23 @@ describe('mongoJsonSchema', function(){
         });
       } catch (ex){
         ex.errors[0].message.should.equal('Property is required');
+        return done();
+      }
+      throw "shouldn't get here";
+    });
+    it ("rejects data with extra fields (with additionalProperties set to false)", function(done) {
+      try {
+        schema.partialValidate({
+          _id : '52f044dee2896a8264d7ec2f',
+          nested : {
+            sub : '52f044dee2896a8264d7ec2f',
+          },
+          monkeys: 12,
+          count : 42,
+          participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f']
+        });
+      } catch (ex){
+        ex.errors[0].message.should.equal('Additional properties are not allowed');
         return done();
       }
       throw "shouldn't get here";
@@ -225,7 +243,7 @@ describe('mongoJsonSchema', function(){
   describe("partialValidate", function() {
     it ("rejects bad data against the schema", function(done){
       try {
-        var actual = schema.partialValidate({
+        schema.partialValidate({
           _id : '52f044dee2896a8264d7ec2',  // bad id here
         });
       } catch (ex){
@@ -234,8 +252,25 @@ describe('mongoJsonSchema', function(){
       }
       throw "shouldn't get here";
     });
+    it ("rejects data with extra fields (with additionalProperties set to false)", function(done) {
+      try {
+        schema.partialValidate({
+          _id : '52f044dee2896a8264d7ec2f',
+          nested : {
+            sub : '52f044dee2896a8264d7ec2f',
+          },
+          monkeys: 12,
+          count : 42,
+          participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f']
+        });
+      } catch (ex){
+        ex.errors[0].message.should.equal('Additional properties are not allowed');
+        return done();
+      }
+      throw "shouldn't get here";
+    });
     it ("does not reject data with missing required fields", function(done){
-      var actual = schema.partialValidate({
+      schema.partialValidate({
         nested : {
           sub : '52f044dee2896a8264d7ec2f',
         },
@@ -343,7 +378,8 @@ describe('mongoJsonSchema', function(){
               pattern : "^[a-fA-F0-9]{24}$"
             }
           }
-        }
+        },
+        additionalProperties: false
       });
       done();
     });

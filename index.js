@@ -40,6 +40,30 @@ Schema.prototype.getJsonSchema = function(){
   return this._jsonSchema;
 };
 
+Schema.prototype.validate = function(obj){
+  obj = this.idsToStrings(obj);
+  var report = this.jsonValidator.validate(obj);
+  if (report.errors.length > 0){
+    var err = new Error("JsonSchema validation error");
+    err.errors = report.errors;
+    err.name = "JsonSchemaValidationError";
+    throw err;
+  }
+  return this;
+};
+
+Schema.prototype.partialValidate = function(obj){
+  obj = this.idsToStrings(obj);
+  var report = this.partialJsonValidator.validate(obj);
+  if (report.errors.length > 0){
+    var err = new Error("JsonSchema validation error");
+    err.errors = report.errors;
+    err.name = "JsonSchemaValidationError";
+    throw err;
+  }
+  return this;
+};
+
 Schema.prototype.idsToStrings = function(obj){
   var paths = this.getObjectIdPaths();
   var that = this;
@@ -99,31 +123,6 @@ Schema.prototype.pathApply = function(obj, path, fn){
     }
   }
   return obj;
-};
-
-
-Schema.prototype.validate = function(obj){
-  obj = this.idsToStrings(obj);
-  var report = this.jsonValidator.validate(obj);
-  if (report.errors.length > 0){
-    var err = new Error("JsonSchema validation error");
-    err.errors = report.errors;
-    err.name = "JsonSchemaValidationError";
-    throw err;
-  }
-  return this;
-};
-
-Schema.prototype.partialValidate = function(obj){
-  obj = this.idsToStrings(obj);
-  var report = this.partialJsonValidator.validate(obj);
-  if (report.errors.length > 0){
-    var err = new Error("JsonSchema validation error");
-    err.errors = report.errors;
-    err.name = "JsonSchemaValidationError";
-    throw err;
-  }
-  return this;
 };
 
 Schema.prototype.getObjectIdPaths = function(prefix, schema){
