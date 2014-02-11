@@ -46,6 +46,9 @@ describe('mongoJsonSchema', function(){
         items: {
           type: "objectid",
         }
+      },
+      date : {
+        type: "date"
       }
     },
     additionalProperties: false
@@ -173,6 +176,127 @@ describe('mongoJsonSchema', function(){
       ]);
     });
   });
+  // describe("getDatePaths", function(){
+  //   it("retuns no paths for a number", function(){
+  //     var actual = Schema({
+  //       type : 'number',
+  //       required : false
+  //     }).getDatePaths();
+  //     assertObjectEquals(actual, []);
+  //   });
+  //   it("can get paths on a single date", function(){
+  //     var actual = Schema({
+  //       type : 'date',
+  //       required : false
+  //     }).getDatePaths();
+  //     assertObjectEquals(actual, [
+  //       []
+  //     ]);
+  //   });
+  //   it("can get paths on objects of dates", function(){
+  //     var actual = Schema({
+  //       type : 'object',
+  //       properties : {
+  //         date1 : {
+  //           type : "date"
+  //         },
+  //         date2 : {
+  //           type : "date"
+  //         }
+  //       }
+  //     }).getDatePaths();
+  //     assertObjectEquals(actual, [
+  //       ["date"], ["date2"]
+  //     ]);
+  //   });
+  //   it("can get paths on arrays of dates", function(){
+  //     var actual = Schema({
+  //       type : 'array',
+  //       items : {
+  //         type : "date"
+  //       }
+  //     }).getDatePaths();
+  //     assertObjectEquals(actual, [
+  //       ["*"]
+  //     ]);
+  //   });
+  //   it("can get paths on arrays of arrays of dates", function(){
+  //     var actual = Schema({
+  //       type : 'array',
+  //       items : {
+  //         type : 'array',
+  //         items : {
+  //           type : "date"
+  //         }
+  //       }
+  //     }).getDatePaths();
+  //     assertObjectEquals(actual, [
+  //       ["*", "*"]
+  //     ]);
+  //   });
+  //   it("returns empty when nested arrays have no date", function(){
+  //     var actual = Schema({
+  //       type : 'array',
+  //       items : {
+  //         type : 'array',
+  //         items : {
+  //           type : "number"
+  //         }
+  //       }
+  //     }).getDatePaths();
+  //     assertObjectEquals(actual, [ ]);
+  //   });
+  //   it("returns dates double nested in objects", function(){
+  //     var actual = Schema({
+  //       type : 'object',
+  //       properties : {
+  //         sub2 : {
+  //           type: "object",
+  //           properties: {
+  //             sub3 : {
+  //               type: "date",
+  //               required : false
+  //             }
+  //           }
+  //         }
+  //       }
+  //     }).getDatePaths();
+  //     assertObjectEquals(actual, [
+  //       ["sub2", "sub3"]
+  //     ]);
+  //   });
+
+  //   it("returns date paths", function(){
+  //     var actual = schema.getDatePaths();
+  //     assertObjectEquals(actual, [
+  //       ["date"]
+  //     ]);
+  //   });
+  //   it("returns array nested date paths", function(){
+  //     var actual = Schema({
+  //       type : 'object',
+  //       properties : {
+  //         participants : {
+  //           type: "array",
+  //           items: {
+  //             type: "object",
+  //             properties : {
+  //               subarr : {
+  //                 type : "array",
+  //                 items : {
+  //                   type : "date"
+  //                 }
+  //               }
+  //             }
+  //           }
+  //         }
+  //       }
+  //     }).getDatePaths();
+  //     assertObjectEquals(actual, [
+  //       ["participants", "*", "subarr", '*']
+  //     ]);
+  //   });
+  // });
   describe("validate", function(){
     it ("rejects bad data against the schema", function(done){
       try {
@@ -182,7 +306,8 @@ describe('mongoJsonSchema', function(){
             sub : '52f044dee2896a8264d7ec2f',
           },
           count : 42,
-          participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f']
+          participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f'],
+          date: new Date()
         });
       } catch (ex){
         ex.errors[0].message.should.equal('String does not match pattern');
@@ -197,10 +322,27 @@ describe('mongoJsonSchema', function(){
             sub : '52f044dee2896a8264d7ec2f',
           },
           count : 42,
-          participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f']
+          participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f'],
+          date : new Date()
         });
       } catch (ex){
         ex.errors[0].message.should.equal('Property is required');
+        return done();
+      }
+      throw "shouldn't get here";
+    });
+    it ("rejects data where dates are provided incorrectly", function(done) {
+      try {
+        schema.validate({
+          nested : {
+            sub : '52f044dee2896a8264d7ec2f',
+          },
+          count : 42,
+          participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f'],
+          date : "1234"
+        });
+      } catch (ex){
+        ex.errors[0].message.should.equal('Incorrect date format - got 1234');
         return done();
       }
       throw "shouldn't get here";
@@ -223,19 +365,30 @@ describe('mongoJsonSchema', function(){
       throw "shouldn't get here";
     });
     it ("accepts good data against the schema", function(done) {
-      schema.validate({
-        _id : '52f044dee2896a8264d7ec2f',
-        nested : {
-          sub : '52f044dee2896a8264d7ec2f',
-        },
-        count : 42,
-        participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f']
-      });
+      try {
+          schema.validate({
+          _id : '52f044dee2896a8264d7ec2f',
+          nested : {
+            sub : '52f044dee2896a8264d7ec2f',
+          },
+          count : 42,
+          participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f'],
+          date : new Date()
+        });
+      }
+      catch (ex) {
+        throw new Error(ex.errors[0].message);
+      }
       // partial data missing non-required fields.
-      schema.validate({
-        _id : '52f044dee2896a8264d7ec2f',
-        participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f']
-      });
+      try {
+        schema.validate({
+          _id : '52f044dee2896a8264d7ec2f',
+          participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f']
+        });
+      }
+      catch (ex) {
+        throw new Error(ex.errors[0].message);
+      }
       done();
     });
   });
@@ -269,13 +422,25 @@ describe('mongoJsonSchema', function(){
       }
       throw "shouldn't get here";
     });
+    it ("rejects data where dates are provided incorrectly", function(done) {
+      try {
+        schema.validate({
+          date : "1234"
+        });
+      } catch (ex){
+        ex.errors[0].message.should.equal('Incorrect date format - got 1234');
+        return done();
+      }
+      throw "shouldn't get here";
+    });
     it ("does not reject data with missing required fields", function(done){
       schema.partialValidate({
         nested : {
           sub : '52f044dee2896a8264d7ec2f',
         },
         count : 42,
-        participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f']
+        participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f'],
+        date: new Date()
       });
       done();
     });
@@ -377,7 +542,11 @@ describe('mongoJsonSchema', function(){
               type: "string",
               pattern : "^[a-fA-F0-9]{24}$"
             }
-          }
+          },
+          date : {
+            type: 'string',
+            pattern: '(\\d\\d\\d\\d)(-)?(\\d\\d)(-)?(\\d\\d)(T)?(\\d\\d)(:)?(\\d\\d)(:)?(\\d\\d)(\\.\\d+)?(Z|([+-])(\\d\\d)(:)?(\\d\\d))'
+          },
         },
         additionalProperties: false
       });
