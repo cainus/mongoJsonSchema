@@ -43,8 +43,13 @@ Schema.prototype.getJsonSchema = function(){
   return this._jsonSchema;
 };
 
+var clone = function(obj) {
+  return JSON.parse(JSON.stringify(obj));
+};
+
 Schema.prototype.validate = function(obj){
-  this.checkDates(obj);
+  obj = clone(obj);
+  obj = this.datesToStrings(obj);
   obj = this.idsToStrings(obj);
   var report = this.jsonValidator.validate(obj);
   if (report.errors.length > 0){
@@ -57,7 +62,8 @@ Schema.prototype.validate = function(obj){
 };
 
 Schema.prototype.partialValidate = function(obj){
-  this.checkDates(obj);
+  obj = clone(obj);
+  obj = this.datesToStrings(obj);
   obj = this.idsToStrings(obj);
   var report = this.partialJsonValidator.validate(obj);
   if (report.errors.length > 0){
@@ -96,17 +102,17 @@ Schema.prototype.stringsToIds = function(obj){
   return obj;
 };
 
-Schema.prototype.checkDates = function(obj) {
+Schema.prototype.datesToStrings = function(obj) {
   var paths = this.getDatePaths();
   var that = this;
   var errs = [];
   paths.forEach(function(path){
     obj = that.pathApply(obj, path, function(item){
-      var date = (Date.parse(item)).toString();
       if ((new Date(item)).toString() === "Invalid Date") {
         var message = "Incorrect date format - got " + item.toString();
         errs.push(new Error(message));
       }
+      return item;
     });
   });
   if (errs.length) {

@@ -373,7 +373,7 @@ describe('mongoJsonSchema', function(){
           },
           count : 42,
           participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f'],
-          date : "2014-01-23T20:49:45.040Z"
+          date : new Date("2014-01-23T20:49:45.040Z")
         });
       }
       catch (ex) {
@@ -441,18 +441,6 @@ describe('mongoJsonSchema', function(){
         count : 42,
         participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f'],
         date: "2014-01-23T20:49:45.040Z"
-      });
-      done();
-    });
-    it("accepts a variety of date formats", function(done) {
-      schema.partialValidate({
-        date: new Date()
-      });
-      schema.partialValidate({
-        date: "10/16/05"
-      });
-      schema.partialValidate({
-        date: "December 10"
       });
       done();
     });
