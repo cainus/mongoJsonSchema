@@ -102,7 +102,8 @@ Schema.prototype.checkDates = function(obj) {
   var errs = [];
   paths.forEach(function(path){
     obj = that.pathApply(obj, path, function(item){
-      if (!(item instanceof Date)){
+      var date = (Date.parse(item)).toString();
+      if ((new Date(item)).toString() === "Invalid Date") {
         var message = "Incorrect date format - got " + item.toString();
         errs.push(new Error(message));
       }

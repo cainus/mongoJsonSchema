@@ -176,127 +176,127 @@ describe('mongoJsonSchema', function(){
       ]);
     });
   });
-  // describe("getDatePaths", function(){
-  //   it("retuns no paths for a number", function(){
-  //     var actual = Schema({
-  //       type : 'number',
-  //       required : false
-  //     }).getDatePaths();
-  //     assertObjectEquals(actual, []);
-  //   });
-  //   it("can get paths on a single date", function(){
-  //     var actual = Schema({
-  //       type : 'date',
-  //       required : false
-  //     }).getDatePaths();
-  //     assertObjectEquals(actual, [
-  //       []
-  //     ]);
-  //   });
-  //   it("can get paths on objects of dates", function(){
-  //     var actual = Schema({
-  //       type : 'object',
-  //       properties : {
-  //         date1 : {
-  //           type : "date"
-  //         },
-  //         date2 : {
-  //           type : "date"
-  //         }
-  //       }
-  //     }).getDatePaths();
-  //     assertObjectEquals(actual, [
-  //       ["date"], ["date2"]
-  //     ]);
-  //   });
-  //   it("can get paths on arrays of dates", function(){
-  //     var actual = Schema({
-  //       type : 'array',
-  //       items : {
-  //         type : "date"
-  //       }
-  //     }).getDatePaths();
-  //     assertObjectEquals(actual, [
-  //       ["*"]
-  //     ]);
-  //   });
-  //   it("can get paths on arrays of arrays of dates", function(){
-  //     var actual = Schema({
-  //       type : 'array',
-  //       items : {
-  //         type : 'array',
-  //         items : {
-  //           type : "date"
-  //         }
-  //       }
-  //     }).getDatePaths();
-  //     assertObjectEquals(actual, [
-  //       ["*", "*"]
-  //     ]);
-  //   });
-  //   it("returns empty when nested arrays have no date", function(){
-  //     var actual = Schema({
-  //       type : 'array',
-  //       items : {
-  //         type : 'array',
-  //         items : {
-  //           type : "number"
-  //         }
-  //       }
-  //     }).getDatePaths();
-  //     assertObjectEquals(actual, [ ]);
-  //   });
-  //   it("returns dates double nested in objects", function(){
-  //     var actual = Schema({
-  //       type : 'object',
-  //       properties : {
-  //         sub2 : {
-  //           type: "object",
-  //           properties: {
-  //             sub3 : {
-  //               type: "date",
-  //               required : false
-  //             }
-  //           }
-  //         }
-  //       }
-  //     }).getDatePaths();
-  //     assertObjectEquals(actual, [
-  //       ["sub2", "sub3"]
-  //     ]);
-  //   });
+  describe("getDatePaths", function(){
+    it("retuns no paths for a number", function(){
+      var actual = Schema({
+        type : 'number',
+        required : false
+      }).getDatePaths();
+      assertObjectEquals(actual, []);
+    });
+    it("can get paths on a single date", function(){
+      var actual = Schema({
+        type : 'date',
+        required : false
+      }).getDatePaths();
+      assertObjectEquals(actual, [
+        []
+      ]);
+    });
+    it("can get paths on objects of dates", function(){
+      var actual = Schema({
+        type : 'object',
+        properties : {
+          date1 : {
+            type : "date"
+          },
+          date2 : {
+            type : "date"
+          }
+        }
+      }).getDatePaths();
+      assertObjectEquals(actual, [
+        ["date1"], ["date2"]
+      ]);
+    });
+    it("can get paths on arrays of dates", function(){
+      var actual = Schema({
+        type : 'array',
+        items : {
+          type : "date"
+        }
+      }).getDatePaths();
+      assertObjectEquals(actual, [
+        ["*"]
+      ]);
+    });
+    it("can get paths on arrays of arrays of dates", function(){
+      var actual = Schema({
+        type : 'array',
+        items : {
+          type : 'array',
+          items : {
+            type : "date"
+          }
+        }
+      }).getDatePaths();
+      assertObjectEquals(actual, [
+        ["*", "*"]
+      ]);
+    });
+    it("returns empty when nested arrays have no date", function(){
+      var actual = Schema({
+        type : 'array',
+        items : {
+          type : 'array',
+          items : {
+            type : "number"
+          }
+        }
+      }).getDatePaths();
+      assertObjectEquals(actual, [ ]);
+    });
+    it("returns dates double nested in objects", function(){
+      var actual = Schema({
+        type : 'object',
+        properties : {
+          sub2 : {
+            type: "object",
+            properties: {
+              sub3 : {
+                type: "date",
+                required : false
+              }
+            }
+          }
+        }
+      }).getDatePaths();
+      assertObjectEquals(actual, [
+        ["sub2", "sub3"]
+      ]);
+    });
 
-  //   it("returns date paths", function(){
-  //     var actual = schema.getDatePaths();
-  //     assertObjectEquals(actual, [
-  //       ["date"]
-  //     ]);
-  //   });
-  //   it("returns array nested date paths", function(){
-  //     var actual = Schema({
-  //       type : 'object',
-  //       properties : {
-  //         participants : {
-  //           type: "array",
-  //           items: {
-  //             type: "object",
-  //             properties : {
-  //               subarr : {
-  //                 type : "array",
-  //                 items : {
-  //                   type : "date"
-  //                 }
-  //               }
-  //             }
-  //           }
-  //         }
-  //       }
-  //     }).getDatePaths();
-  //     assertObjectEquals(actual, [
-  //       ["participants", "*", "subarr", '*']
-  //     ]);
-  //   });
-  // });
+    it("returns date paths", function(){
+      var actual = schema.getDatePaths();
+      assertObjectEquals(actual, [
+        ["date"]
+      ]);
+    });
+    it("returns array nested date paths", function(){
+      var actual = Schema({
+        type : 'object',
+        properties : {
+          participants : {
+            type: "array",
+            items: {
+              type: "object",
+              properties : {
+                subarr : {
+                  type : "array",
+                  items : {
+                    type : "date"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }).getDatePaths();
+      assertObjectEquals(actual, [
+        ["participants", "*", "subarr", '*']
+      ]);
+    });
+  });
   describe("validate", function(){
     it ("rejects bad data against the schema", function(done){
       try {
@@ -339,10 +339,10 @@ describe('mongoJsonSchema', function(){
           },
           count : 42,
           participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f'],
-          date : "1234"
+          date : "asdf"
         });
       } catch (ex){
-        ex.errors[0].message.should.equal('Incorrect date format - got 1234');
+        ex.errors[0].message.should.equal('Incorrect date format - got asdf');
         return done();
       }
       throw "shouldn't get here";
@@ -373,7 +373,7 @@ describe('mongoJsonSchema', function(){
           },
           count : 42,
           participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f'],
-          date : new Date()
+          date : "2014-01-23T20:49:45.040Z"
         });
       }
       catch (ex) {
@@ -425,10 +425,10 @@ describe('mongoJsonSchema', function(){
     it ("rejects data where dates are provided incorrectly", function(done) {
       try {
         schema.validate({
-          date : "1234"
+          date : "asdf"
         });
       } catch (ex){
-        ex.errors[0].message.should.equal('Incorrect date format - got 1234');
+        ex.errors[0].message.should.equal('Incorrect date format - got asdf');
         return done();
       }
       throw "shouldn't get here";
@@ -440,7 +440,19 @@ describe('mongoJsonSchema', function(){
         },
         count : 42,
         participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f'],
+        date: "2014-01-23T20:49:45.040Z"
+      });
+      done();
+    });
+    it("accepts a variety of date formats", function(done) {
+      schema.partialValidate({
         date: new Date()
+      });
+      schema.partialValidate({
+        date: "10/16/05"
+      });
+      schema.partialValidate({
+        date: "December 10"
       });
       done();
     });
