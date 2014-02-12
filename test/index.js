@@ -23,84 +23,45 @@ var assertObjectEquals = function(actual, expected){
 
 describe('mongoJsonSchema', function(){
   var schema = Schema({
-    type : 'object',
-    properties : {
-      _id : {
-        type: "objectid",
-        required : true
-      },
-      nested : {
-        type : 'object',
-        properties : {
-          sub : {
-            type : "objectid"
-          }
+    nested : {
+      type : 'object',
+      properties : {
+        sub : {
+          type : "objectid"
         }
-      },
-      count : {
-        type : "number",
-        required : false
-      },
-      participants : {
-        type: "array",
-        items: {
-          type: "objectid",
-        }
-      },
-      date : {
-        type: "date"
       }
     },
-    additionalProperties: false
+    count : {
+      type : "number",
+      required : true
+    },
+    participants : {
+      type: "array",
+      items: {
+        type: "objectid",
+      }
+    },
+    date : {
+      type: "date"
+    }
   });
   describe("getObjectIdPaths", function(){
-    it("retuns no paths for a number", function(){
-      var actual = Schema({
-        type : 'number',
-        required : false
-      }).getObjectIdPaths();
-      assertObjectEquals(actual, []);
-    });
-    it("can get paths on a single id", function(){
-      var actual = Schema({
-        type : 'objectid',
-        required : false
-      }).getObjectIdPaths();
-      assertObjectEquals(actual, [
-        []
-      ]);
-    });
     it("can get paths on objects of ids", function(){
       var actual = Schema({
-        type : 'object',
-        properties : {
-          kid : {
-            type : "objectid"
-          },
-          kid2 : {
-            type : "objectid"
-          }
-        }
-      }).getObjectIdPaths();
-      assertObjectEquals(actual, [
-        ["kid"], ["kid2"]
-      ]);
-    });
-    it("can get paths on arrays of ids", function(){
-      var actual = Schema({
-        type : 'array',
-        items : {
+        kid : {
+          type : "objectid"
+        },
+        kid2 : {
           type : "objectid"
         }
       }).getObjectIdPaths();
       assertObjectEquals(actual, [
-        ["*"]
+        ["kid"], ["kid2"], ["_id"]
       ]);
     });
-    it("can get paths on arrays of arrays of ids", function(){
+    it("can get paths on arrays of ids", function(){
       var actual = Schema({
-        type : 'array',
-        items : {
+        arr: {
           type : 'array',
           items : {
             type : "objectid"
@@ -108,63 +69,75 @@ describe('mongoJsonSchema', function(){
         }
       }).getObjectIdPaths();
       assertObjectEquals(actual, [
-        ["*", "*"]
+        ["arr", "*"], ["_id"]
       ]);
     });
-    it("returns empty when nested arrays have no objectid", function(){
+    it("can get paths on arrays of arrays of ids", function(){
       var actual = Schema({
-        type : 'array',
-        items : {
+        arr: {
           type : 'array',
           items : {
-            type : "number"
-          }
-        }
-      }).getObjectIdPaths();
-      assertObjectEquals(actual, [ ]);
-    });
-    it("returns ids double nested in objects", function(){
-      var actual = Schema({
-        type : 'object',
-        properties : {
-          sub2 : {
-            type: "object",
-            properties: {
-              sub3 : {
-                type: "objectid",
-                required : false
-              }
+            type : 'array',
+            items : {
+              type : "objectid"
             }
           }
         }
       }).getObjectIdPaths();
       assertObjectEquals(actual, [
-        ["sub2", "sub3"]
+        ["arr", "*", "*"], ["_id"]
+      ]);
+    });
+    it("returns only the main id when nested arrays have no objectid", function(){
+      var actual = Schema({
+        arr: {
+          type : 'array',
+          items : {
+            type : 'array',
+            items : {
+              type : "number"
+            }
+          }
+        }
+      }).getObjectIdPaths();
+      assertObjectEquals(actual, [["_id"]]);
+    });
+    it("returns ids double nested in objects", function(){
+      var actual = Schema({
+        sub2 : {
+          type: "object",
+          properties: {
+            sub3 : {
+              type: "objectid",
+              required : false
+            }
+          }
+        }
+      }).getObjectIdPaths();
+      assertObjectEquals(actual, [
+        ["sub2", "sub3"], ["_id"]
       ]);
     });
 
     it("returns objectid paths", function(){
       var actual = schema.getObjectIdPaths();
       assertObjectEquals(actual, [
-        ["_id"],
         ["nested", "sub"],
-        ["participants", "*"]
+        ["participants", "*"],
+        ["_id"]
       ]);
     });
     it("returns array nested objectid paths", function(){
       var actual = Schema({
-        type : 'object',
-        properties : {
-          participants : {
-            type: "array",
-            items: {
-              type: "object",
-              properties : {
-                subarr : {
-                  type : "array",
-                  items : {
-                    type : "objectid"
-                  }
+        participants : {
+          type: "array",
+          items: {
+            type: "object",
+            properties : {
+              subarr : {
+                type : "array",
+                items : {
+                  type : "objectid"
                 }
               }
             }
@@ -172,98 +145,82 @@ describe('mongoJsonSchema', function(){
         }
       }).getObjectIdPaths();
       assertObjectEquals(actual, [
-        ["participants", "*", "subarr", '*']
+        ["participants", "*", "subarr", '*'], ["_id"]
       ]);
     });
   });
   describe("getDatePaths", function(){
-    it("retuns no paths for a number", function(){
-      var actual = Schema({
-        type : 'number',
-        required : false
-      }).getDatePaths();
-      assertObjectEquals(actual, []);
-    });
     it("can get paths on a single date", function(){
       var actual = Schema({
-        type : 'date',
-        required : false
+        date: {
+          type : 'date',
+          required : false
+        }
       }).getDatePaths();
       assertObjectEquals(actual, [
-        []
+        ['date']
       ]);
     });
     it("can get paths on objects of dates", function(){
       var actual = Schema({
-        type : 'object',
-        properties : {
-          date1 : {
-            type : "date"
-          },
-          date2 : {
-            type : "date"
-          }
-        }
-      }).getDatePaths();
-      assertObjectEquals(actual, [
-        ["date1"], ["date2"]
-      ]);
-    });
-    it("can get paths on arrays of dates", function(){
-      var actual = Schema({
-        type : 'array',
-        items : {
-          type : "date"
-        }
-      }).getDatePaths();
-      assertObjectEquals(actual, [
-        ["*"]
-      ]);
-    });
-    it("can get paths on arrays of arrays of dates", function(){
-      var actual = Schema({
-        type : 'array',
-        items : {
-          type : 'array',
-          items : {
-            type : "date"
-          }
-        }
-      }).getDatePaths();
-      assertObjectEquals(actual, [
-        ["*", "*"]
-      ]);
-    });
-    it("returns empty when nested arrays have no date", function(){
-      var actual = Schema({
-        type : 'array',
-        items : {
-          type : 'array',
-          items : {
-            type : "number"
-          }
-        }
-      }).getDatePaths();
-      assertObjectEquals(actual, [ ]);
-    });
-    it("returns dates double nested in objects", function(){
-      var actual = Schema({
-        type : 'object',
-        properties : {
-          sub2 : {
-            type: "object",
-            properties: {
-              sub3 : {
-                type: "date",
-                required : false
-              }
+        dates: {
+          type: 'object',
+          properties: {
+            date1 : {
+              type : "date"
+            },
+            date2 : {
+              type : "date"
             }
           }
         }
       }).getDatePaths();
       assertObjectEquals(actual, [
-        ["sub2", "sub3"]
+        ["dates", "date1"], ["dates", "date2"]
       ]);
+    });
+    it("can get paths on arrays of dates", function(){
+      var actual = Schema({
+        arr: {
+          type : 'array',
+          items : {
+            type : "date"
+          }
+        }
+      }).getDatePaths();
+      assertObjectEquals(actual, [
+        ["arr", "*"]
+      ]);
+    });
+    it("can get paths on arrays of arrays of dates", function(){
+      var actual = Schema({
+        arr: {
+          type : 'array',
+          items : {
+            type : 'array',
+            items : {
+              type : "date"
+            }
+          }
+        }
+      }).getDatePaths();
+      assertObjectEquals(actual, [
+        ["arr", "*", "*"]
+      ]);
+    });
+    it("returns empty when nested arrays have no date", function(){
+      var actual = Schema({
+        arr: {
+          type : 'array',
+          items : {
+            type : 'array',
+            items : {
+              type : "number"
+            }
+          }
+        }
+      }).getDatePaths();
+      assertObjectEquals(actual, [ ]);
     });
 
     it("returns date paths", function(){
@@ -274,18 +231,15 @@ describe('mongoJsonSchema', function(){
     });
     it("returns array nested date paths", function(){
       var actual = Schema({
-        type : 'object',
-        properties : {
-          participants : {
-            type: "array",
-            items: {
-              type: "object",
-              properties : {
-                subarr : {
-                  type : "array",
-                  items : {
-                    type : "date"
-                  }
+        participants : {
+          type: "array",
+          items: {
+            type: "object",
+            properties : {
+              subarr : {
+                type : "array",
+                items : {
+                  type : "date"
                 }
               }
             }
@@ -301,9 +255,8 @@ describe('mongoJsonSchema', function(){
     it ("rejects bad data against the schema", function(done){
       try {
         schema.validate({
-          _id : '52f044dee2896a8264d7ec2',  // bad id here
           nested : {
-            sub : '52f044dee2896a8264d7ec2f',
+            sub : '52f044dee2896a8264d7ec2', // bad id here
           },
           count : 42,
           participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f'],
@@ -321,7 +274,6 @@ describe('mongoJsonSchema', function(){
           nested : {
             sub : '52f044dee2896a8264d7ec2f',
           },
-          count : 42,
           participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f'],
           date : new Date()
         });
@@ -347,10 +299,9 @@ describe('mongoJsonSchema', function(){
       }
       throw "shouldn't get here";
     });
-    it ("rejects data with extra fields (with additionalProperties set to false)", function(done) {
+    it ("rejects data with extra fields (with default options)", function(done) {
       try {
         schema.partialValidate({
-          _id : '52f044dee2896a8264d7ec2f',
           nested : {
             sub : '52f044dee2896a8264d7ec2f',
           },
@@ -364,10 +315,43 @@ describe('mongoJsonSchema', function(){
       }
       throw "shouldn't get here";
     });
+    it("accepts data with extra fields (if option is set)", function(done) {
+      var nonRequiredSchema = Schema({
+        nested : {
+          type : 'object',
+          properties : {
+            sub : {
+              type : "objectid"
+            }
+          }
+        },
+        count : {
+          type : "number",
+          required : true
+        },
+        participants : {
+          type: "array",
+          items: {
+            type: "objectid",
+          }
+        },
+        date : {
+          type: "date"
+        }
+      }, {additionalProperties: true});
+      nonRequiredSchema.partialValidate({
+        nested : {
+          sub : '52f044dee2896a8264d7ec2f',
+        },
+        monkeys: 12,
+        count : 42,
+        participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f']
+      });
+      done();
+    });
     it ("accepts good data against the schema", function(done) {
       try {
           schema.validate({
-          _id : '52f044dee2896a8264d7ec2f',
           nested : {
             sub : '52f044dee2896a8264d7ec2f',
           },
@@ -382,7 +366,7 @@ describe('mongoJsonSchema', function(){
       // partial data missing non-required fields.
       try {
         schema.validate({
-          _id : '52f044dee2896a8264d7ec2f',
+          count: 42,
           participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f']
         });
       }
@@ -438,7 +422,6 @@ describe('mongoJsonSchema', function(){
         nested : {
           sub : '52f044dee2896a8264d7ec2f',
         },
-        count : 42,
         participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f'],
         date: "2014-01-23T20:49:45.040Z"
       });
@@ -521,7 +504,6 @@ describe('mongoJsonSchema', function(){
           _id : {
             type: "string",
             pattern : "^[a-fA-F0-9]{24}$",
-            required : true
           },
           nested : {
             type : 'object',
@@ -534,7 +516,7 @@ describe('mongoJsonSchema', function(){
           },
           count : {
             type : "number",
-            required : false
+            required : true
           },
           participants : {
             type: "array",

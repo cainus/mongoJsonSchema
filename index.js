@@ -4,12 +4,21 @@ var mongo = require('mongodb');
 var ObjectID = mongo.ObjectID;
 var JSV = require('JSV').JSV;
 
-var Schema = function(jsonSchema){
+var Schema = function(input, options){
   if (!(this instanceof Schema)) {
-    return new Schema(jsonSchema);
+    return new Schema(input, options);
   }
-  this._schema = jsonSchema;
-  this._jsonSchema = toJsonSchema(jsonSchema);
+  options = options || {};
+  // All mongo schemas have ids, but this is not always present (for example, on input)
+  input._id = {
+    type: "objectid"
+  };
+  this._schema = {
+    type: 'object',
+    properties: input,
+    additionalProperties: !!options.additionalProperties
+  };
+  this._jsonSchema = toJsonSchema(this._schema);
   this._partialJsonSchema = toPartialJsonSchema(this._jsonSchema);
   this.jsonValidator = JSV.createEnvironment().createSchema(this._jsonSchema);
   this.partialJsonValidator = JSV.createEnvironment().createSchema(this._partialJsonSchema);
