@@ -196,8 +196,10 @@ Schema.prototype.getObjectIdPaths = function(prefix, schema){
             paths = paths.concat(subpaths);
             break;
           case 'array':
-            subpaths = that.getObjectIdPaths(_.flatten([prefix, k, '*']), v.items);
-            paths = paths.concat(subpaths);
+            if (v.items) {
+              subpaths = that.getObjectIdPaths(_.flatten([prefix, k, '*']), v.items);
+              paths = paths.concat(subpaths);
+            }
             break;
           case 'objectid':
             paths.push(_.flatten([prefix, k]));
@@ -242,8 +244,10 @@ Schema.prototype.getDatePaths = function(prefix, schema){
             paths = paths.concat(subpaths);
             break;
           case 'array':
-            subpaths = that.getDatePaths(_.flatten([prefix, k, '*']), v.items);
-            paths = paths.concat(subpaths);
+            if (v.items) {
+              subpaths = that.getDatePaths(_.flatten([prefix, k, '*']), v.items);
+              paths = paths.concat(subpaths);
+            }
             break;
           case 'date':
             paths.push(_.flatten([prefix, k]));

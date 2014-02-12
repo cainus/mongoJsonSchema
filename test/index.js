@@ -148,6 +148,19 @@ describe('mongoJsonSchema', function(){
         ["participants", "*", "subarr", '*'], ["_id"]
       ]);
     });
+    it("does not infinite loop with unspecified 'itmes' and 'properties' fields", function() {
+      var actual = Schema({
+        object: {
+          type: "object"
+        },
+        array: {
+          type: "array"
+        }
+      }).getObjectIdPaths();
+      assertObjectEquals(actual, [
+        ["_id"]
+      ]);
+    });
   });
   describe("getDatePaths", function(){
     it("can get paths on a single date", function(){
@@ -249,6 +262,17 @@ describe('mongoJsonSchema', function(){
       assertObjectEquals(actual, [
         ["participants", "*", "subarr", '*']
       ]);
+    });
+    it("does not infinite loop with unspecified 'itmes' and 'properties' fields", function() {
+      var actual = Schema({
+        object: {
+          type: "object"
+        },
+        array: {
+          type: "array"
+        }
+      }).getDatePaths();
+      assertObjectEquals(actual, []);
     });
   });
   describe("validate", function(){
