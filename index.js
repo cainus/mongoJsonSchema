@@ -56,32 +56,42 @@ var clone = function(obj) {
   return JSON.parse(JSON.stringify(obj));
 };
 
-Schema.prototype.validate = function(obj){
+var validate = function(obj, validator) {
   obj = clone(obj);
   obj = this.datesToStrings(obj);
   obj = this.idsToStrings(obj);
-  var report = this.jsonValidator.validate(obj);
+  var report = validator.validate(obj);
   if (report.errors.length > 0){
     var err = new Error("JsonSchema validation error");
     err.errors = report.errors;
     err.name = "JsonSchemaValidationError";
+
+    // 'Additional properties not allowed' errors must be found manually.
+    var that = this;
+    report.errors.forEach(function(e) {
+      if (e.attribute === 'additionalProperties') {
+        e.details = "";
+        for (var property in obj) {
+          if (!that._schema.properties[property]) {
+            e.details += (property + ", ");
+          }
+        }
+        if (e.details.length) {
+          e.details = e.details.slice(0, -2);
+        }
+      }
+    });
     throw err;
   }
   return this;
 };
 
+Schema.prototype.validate = function(obj){
+  return validate.call(this, obj, this.jsonValidator);
+};
+
 Schema.prototype.partialValidate = function(obj){
-  obj = clone(obj);
-  obj = this.datesToStrings(obj);
-  obj = this.idsToStrings(obj);
-  var report = this.partialJsonValidator.validate(obj);
-  if (report.errors.length > 0){
-    var err = new Error("JsonSchema validation error");
-    err.errors = report.errors;
-    err.name = "JsonSchemaValidationError";
-    throw err;
-  }
-  return this;
+  return validate.call(this, obj, this.partialJsonValidator);
 };
 
 Schema.prototype.idsToStrings = function(obj){

@@ -301,12 +301,13 @@ describe('mongoJsonSchema', function(){
     });
     it ("rejects data with extra fields (with default options)", function(done) {
       try {
-        schema.partialValidate({
+        schema.validate({
           nested : {
             sub : '52f044dee2896a8264d7ec2f',
           },
           monkeys: 12,
           count : 42,
+          redBalloons: 99,
           participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f']
         });
       } catch (ex){
@@ -389,7 +390,7 @@ describe('mongoJsonSchema', function(){
       }
       throw "shouldn't get here";
     });
-    it ("rejects data with extra fields (with additionalProperties set to false)", function(done) {
+    it ("rejects data with extra fields (with default options)", function(done) {
       try {
         schema.partialValidate({
           _id : '52f044dee2896a8264d7ec2f',
