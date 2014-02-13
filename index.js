@@ -18,6 +18,7 @@ var Schema = function(input, options){
     properties: input,
     additionalProperties: !!options.additionalProperties
   };
+  if (options.name) this.name = options.name;
   this._jsonSchema = toJsonSchema(this._schema);
   this._partialJsonSchema = toPartialJsonSchema(this._jsonSchema);
   this.jsonValidator = JSV.createEnvironment().createSchema(this._jsonSchema);
@@ -62,13 +63,14 @@ var validate = function(obj, validator) {
   obj = this.idsToStrings(obj);
   var report = validator.validate(obj);
   if (report.errors.length > 0){
-    var err = new Error("JsonSchema validation error");
+    var err = new Error(("JsonSchema validation error for schema " + this.name));
     err.errors = report.errors;
-    err.name = "JsonSchemaValidationError";
+    err.name = ("JsonSchemaValidationError");
 
-    // 'Additional properties not allowed' errors must be found manually.
+    // Make some errors a little clearer.
     var that = this;
     report.errors.forEach(function(e) {
+      var passedIn, path;
       if (e.attribute === 'additionalProperties') {
         e.details = "";
         for (var property in obj) {
@@ -79,6 +81,30 @@ var validate = function(obj, validator) {
         if (e.details.length) {
           e.details = e.details.slice(0, -2);
         }
+      } else if (e.attribute === 'type') {
+        try {
+          path = e.uri.split("/").slice(1);
+          passedIn = obj;
+          while(path.length) {
+            passedIn = obj[path.shift()];
+          }
+        } catch (ex) {
+          console.error("error in determining validation path", ex);
+          passedIn = "unknown";
+        }
+        e.details = "needed type " + e.details[0] + "; got type " + (typeof passedIn);
+      } else if (e.attribute === 'pattern') {
+        try {
+          path = e.uri.split("/").slice(1);
+          passedIn = obj;
+          while(path.length) {
+            passedIn = passedIn[path.shift()];
+          }
+        } catch (ex) {
+          console.error("error in determining validation path", ex);
+          passedIn = "unknown";
+        }
+        e.details = "needed pattern " + e.details.toString() + "; got " + (passedIn);
       }
     });
     throw err;

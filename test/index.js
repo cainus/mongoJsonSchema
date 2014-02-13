@@ -276,7 +276,7 @@ describe('mongoJsonSchema', function(){
     });
   });
   describe("validate", function(){
-    it ("rejects bad data against the schema", function(done){
+    it ("rejects bad ids", function(done){
       try {
         schema.validate({
           nested : {
@@ -307,7 +307,7 @@ describe('mongoJsonSchema', function(){
       }
       throw "shouldn't get here";
     });
-    it ("rejects data where dates are provided incorrectly", function(done) {
+    it ("rejects bad dates", function(done) {
       try {
         schema.validate({
           nested : {
@@ -319,6 +319,22 @@ describe('mongoJsonSchema', function(){
         });
       } catch (ex){
         ex.errors[0].message.should.equal('Incorrect date format - got asdf');
+        return done();
+      }
+      throw "shouldn't get here";
+    });
+    it ("rejects data with incorrect types", function(done) {
+      try {
+        schema.validate({
+          nested : {
+            sub : '52f044dee2896a8264d7ec2f',
+          },
+          count : "hello",
+          participants : "lalala",
+          date : new Date()
+        });
+      } catch (ex){
+        ex.errors[0].message.should.equal('Instance is not a required type');
         return done();
       }
       throw "shouldn't get here";
@@ -364,7 +380,7 @@ describe('mongoJsonSchema', function(){
           type: "date"
         }
       }, {additionalProperties: true});
-      nonRequiredSchema.partialValidate({
+      nonRequiredSchema.validate({
         nested : {
           sub : '52f044dee2896a8264d7ec2f',
         },
@@ -374,7 +390,48 @@ describe('mongoJsonSchema', function(){
       });
       done();
     });
-    it ("accepts good data against the schema", function(done) {
+    it("handles objects whose properties are not listed", function(done) {
+      var objectSchema = Schema({
+        object1: {
+          type: "object"
+        },
+        object2: {
+          type: "object",
+          properties: {
+            nested1: {
+              type: "object"
+            },
+            nested2: {
+              type: "object"
+            }
+          }
+        }
+      });
+      try {
+        objectSchema.validate({
+          object1: {
+            prop1: true,
+            prop2: "hello"
+          },
+          object2: {
+            nested1: {
+              hello: true,
+              goodbye: false
+            },
+            nested2: {
+              innerObject: {
+                emptyObject: {}
+              }
+            }
+          }
+        });
+      }
+      catch (ex) {
+        throw new Error(ex.errors[0].message);
+      }
+      done();
+    });
+    it("accepts good data against the schema", function(done) {
       try {
           schema.validate({
           nested : {
