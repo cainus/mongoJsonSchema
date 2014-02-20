@@ -136,12 +136,7 @@ Schema.prototype.stringsToIds = function(obj){
   var that = this;
   paths.forEach(function(path){
     obj = that.pathApply(obj, path, function(item){
-      if (item instanceof ObjectID){
-        return item;
-      }
-      if (_.isString(item)){
-      return ObjectID(item);
-      }
+      return ObjectID(item.toString());
     });
   });
   return obj;
