@@ -136,12 +136,7 @@ Schema.prototype.stringsToIds = function(obj){
   var that = this;
   paths.forEach(function(path){
     obj = that.pathApply(obj, path, function(item){
-      if (item instanceof ObjectID){
-        return item;
-      }
-      if (_.isString(item)){
-      return ObjectID(item);
-      }
+      return ObjectID(item.toString());
     });
   });
   return obj;
@@ -174,6 +169,7 @@ var isSet = function(obj){
 };
 
 Schema.prototype.pathApply = function(obj, path, fn){
+  // console.log("path apply on", obj, "path:", path);
   var that = this;
   if (!isSet(obj)){
     throw new Error("argument error: obj was null");
@@ -186,11 +182,12 @@ Schema.prototype.pathApply = function(obj, path, fn){
   }
   var prop = path.shift();
   if (prop === '*'){
-    prop = path.shift();
     // it's an array!
     if (_.isArray(obj)){
       obj = obj.map(function(item){
-        return that.pathApply(item, path, fn);
+        // deep copy the path.
+        var newPath = clone(path);
+        return that.pathApply(item, newPath, fn);
       });
     }
   } else {

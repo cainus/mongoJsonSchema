@@ -38,7 +38,7 @@ describe('mongoJsonSchema', function(){
     participants : {
       type: "array",
       items: {
-        type: "objectid",
+        type: "objectid"
       }
     },
     date : {
@@ -407,30 +407,49 @@ describe('mongoJsonSchema', function(){
           }
         }
       });
-      try {
-        objectSchema.validate({
-          object1: {
-            prop1: true,
-            prop2: "hello"
+      objectSchema.validate({
+        object1: {
+          prop1: true,
+          prop2: "hello"
+        },
+        object2: {
+          nested1: {
+            hello: true,
+            goodbye: false
           },
-          object2: {
-            nested1: {
-              hello: true,
-              goodbye: false
-            },
-            nested2: {
-              innerObject: {
-                emptyObject: {}
+          nested2: {
+            innerObject: {
+              emptyObject: {}
+            }
+          }
+        }
+      });
+      done();
+    });
+    it("handles objects within ararys", function(done) {
+      var objectSchema = Schema({
+        array: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              id: {
+                type: "objectid"
               }
             }
           }
-        });
-      }
-      catch (ex) {
-        throw new Error(ex.errors[0].message);
-      }
+        }
+      });
+      objectSchema.validate({
+        array: [
+          {id: ObjectID('52f044dee2896a8264d7ec2f')},
+          {id: ObjectID('52f044dee2896a8264d7ec22')},
+          {id: ObjectID('52f044dee2896a8264d7ec21')}
+        ]
+      });
       done();
     });
+
     it("accepts good data against the schema", function(done) {
       try {
           schema.validate({
