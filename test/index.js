@@ -449,6 +449,38 @@ describe('mongoJsonSchema', function(){
       });
       done();
     });
+    it("handles multiple types", function(done) {
+      var schemaWithMultipleTypes = Schema({
+        canBe: {
+          type: ['array', 'string'],
+          items: {
+            type: 'string'
+          }
+        }
+      });
+      schemaWithMultipleTypes.validate({
+        canBe: 'string'
+      });
+      schemaWithMultipleTypes.validate({
+        canBe: ['string1', 'string2']
+      });
+      try {
+        schemaWithMultipleTypes.validate({
+          canBe: 3
+        });
+      } catch (ex1) {
+        ex1.errors[0].message.should.equal("Instance is not a required type");
+        try {
+          schemaWithMultipleTypes.validate({
+            canBe: {field: 'string'}
+          });
+        } catch (ex2) {
+          ex2.errors[0].message.should.equal("Instance is not a required type");
+          return done();
+        }
+      }
+      throw "should not get here.";
+    });
 
     it("accepts good data against the schema", function(done) {
       try {
