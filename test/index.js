@@ -482,6 +482,26 @@ describe('mongoJsonSchema', function(){
       throw "should not get here.";
     });
 
+    it("handles null as a type", function(done) {
+      var schemaWithNull = Schema({
+        n: {
+          type: 'null'
+        }
+      });
+      var result = schemaWithNull.validate({
+        n: null
+      });
+      try {
+        schemaWithNull.validate({
+          n: "null"
+        });
+      } catch (ex) {
+        ex.errors[0].message.should.equal("Instance is not a required type");
+        return done();
+      }
+      throw "should not get here.";
+    });
+
     it("accepts good data against the schema", function(done) {
       try {
           schema.validate({
