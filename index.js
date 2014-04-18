@@ -156,7 +156,7 @@ Schema.prototype.datesToStrings = function(obj) {
     });
   });
   if (errs.length) {
-    var err = new Error("Date validation error.  Check this.errors for path.");
+    var err = new Error("Date validation error.  Check this.errors for path. In schema " + (this.name || ""));
     err.errors = errs;
     err.name = "DateValidationError";
     throw err;
@@ -172,10 +172,10 @@ Schema.prototype.pathApply = function(obj, path, fn){
   // console.log("path apply on", obj, "path:", path);
   var that = this;
   if (!isSet(obj)){
-    throw new Error("argument error: obj was null");
+    throw new Error("argument error: obj was null in schema " + (this.name || ""));
   }
   if (!_.isArray(path)){
-    throw new Error("argument error: path was not an array: " + path);
+    throw new Error("argument error: in schema " + (this.name || "") + " path was not an array: " + path);
   }
   if (path.length === 0){
     return fn(obj);
