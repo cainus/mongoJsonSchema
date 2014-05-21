@@ -169,7 +169,6 @@ var isSet = function(obj){
 };
 
 Schema.prototype.pathApply = function(obj, path, fn){
-  // console.log("path apply on", obj, "path:", path);
   var that = this;
   if (!isSet(obj)){
     return obj;
