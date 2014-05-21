@@ -172,7 +172,7 @@ Schema.prototype.pathApply = function(obj, path, fn){
   // console.log("path apply on", obj, "path:", path);
   var that = this;
   if (!isSet(obj)){
-    throw new Error("argument error: obj was null in schema " + (this.name || ""));
+    return obj;
   }
   if (!_.isArray(path)){
     throw new Error("argument error: in schema " + (this.name || "") + " path was not an array: " + path);
