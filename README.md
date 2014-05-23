@@ -66,7 +66,7 @@ returns:
             properties : {
               sub : {
                 type: "string",
-                pattern : "^[a-fA-F0-9]{24}$",
+                pattern : "^[a-fA-F0-9]{24}$"
               }
             }
           },
@@ -91,7 +91,7 @@ returns:
 schema.forJson({
         _id : ObjectID('52f044dee2896a8264d7ec2f'),
         nested : {
-          sub : ObjectID('52f044dee2896a8264d7ec2f'),
+          sub : ObjectID('52f044dee2896a8264d7ec2f')
         },
         count : 42,
         participants : [ObjectID('52f044dee2896a8264d7ec2f'),ObjectID('52f044dee2896a8264d7ec2f')]
@@ -102,7 +102,7 @@ returns:
 {
         _id : '52f044dee2896a8264d7ec2f',
         nested : {
-          sub : '52f044dee2896a8264d7ec2f',
+          sub : '52f044dee2896a8264d7ec2f'
         },
         count : 42,
         participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f']
@@ -114,7 +114,7 @@ returns:
 schema.forMongo({
         _id : '52f044dee2896a8264d7ec2f',
         nested : {
-          sub : '52f044dee2896a8264d7ec2f',
+          sub : '52f044dee2896a8264d7ec2f'
         },
         count : 42,
         participants : ['52f044dee2896a8264d7ec2f','52f044dee2896a8264d7ec2f']
@@ -125,7 +125,7 @@ returns:
 {
         _id : ObjectID('52f044dee2896a8264d7ec2f'),
         nested : {
-          sub : ObjectID('52f044dee2896a8264d7ec2f'),
+          sub : ObjectID('52f044dee2896a8264d7ec2f')
         },
         count : 42,
         participants : [ObjectID('52f044dee2896a8264d7ec2f'),ObjectID('52f044dee2896a8264d7ec2f')]
