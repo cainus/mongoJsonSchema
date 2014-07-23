@@ -1,6 +1,6 @@
 {
   "name": "mongo-json-schema",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "A schema validator for objects going into mongo",
   "main": "index.js",
   "scripts": {
