@@ -1,0 +1,5 @@
+--require ./testHelpers
+--check-leaks
+--reporter dot
+--ui bdd
+--timeout 2000

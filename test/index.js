@@ -1,25 +1,8 @@
-var should = require('should');
-var difflet = require('difflet');
-var deepEqual = require('deep-equal');
 var Schema = require('../index');
 var mongo = require('mongodb');
 var ObjectID = mongo.ObjectID;
 var util = require('util');
-var assert = require('assert');
 
-var assertObjectEquals = function(actual, expected){
-  if (!deepEqual(actual, expected)){
-    process.stdout.write(difflet.compare(actual, expected));
-    console.log("\n\nactual");
-    console.log(util.inspect(actual));
-    console.log("\n\nexpected");
-    console.log(util.inspect(expected));
-    console.log("\n\n");
-    assert.fail(actual, expected);
-    return false;
-  }
-  return true;
-};
 
 describe('mongoJsonSchema', function(){
   var schema = Schema({
