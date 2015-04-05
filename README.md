@@ -40,7 +40,7 @@ schema.validate({
 
 ### Getting a standard jsonSchema
 ```javascript
-schema.toJsonSchema();
+schema.getJsonSchema();
 ```
 
 returns:
